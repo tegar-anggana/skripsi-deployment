@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ulasan Aplikasi Mobile JKN</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      #result {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ulasan Aplikasi Mobile JKN</h1>
+    <form id="sentiment-form">
+      <textarea
+        id="text"
+        name="text"
+        rows="4"
+        cols="50"
+        placeholder="Masukkan teks ulasan..."
+      ></textarea
+      ><br />
+      <button type="submit">Analisis Sentimen</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+      document
+        .getElementById("sentiment-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const text = document.getElementById("text").value;
+          fetch("/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: "text=" + encodeURIComponent(text),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const resultDiv = document.getElementById("result");
+              resultDiv.innerHTML =
+                "Sentiment: " +
+                data[0].label
+                // + "<br>Score: " +
+                // data[0].score.toFixed(4);
+            });
+        });
+    </script>
+  </body>
+</html>
