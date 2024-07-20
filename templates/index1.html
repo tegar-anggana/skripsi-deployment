@@ -5,84 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ulasan Aplikasi Mobile JKN</title>
     <style>
-      h1,
-      h2 {
-        font-weight: 400;
-      }
-      body {
+      body,
+      button {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         text-align: center;
         margin-top: 50px;
-      }
-      button,
-      input {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: bold;
       }
       #result {
         margin-top: 20px;
       }
       .upload-box {
+        border: 1px solid black;
         width: fit-content;
         margin: 10px auto;
         padding: 10px;
         border-radius: 5px;
-        background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
       }
-
-      input#file {
-        border: 1px solid black;
-        padding: 6px;
+      .upload-container {
+        margin-top: 40px;
       }
       .button-submit-upload {
-        margin-top: 10px;
         font-size: 16px;
-        padding: 7px 20px;
-        background-color: #0072ff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-      }
-      .button-submit-upload:hover {
-        background-color: #005bb5;
-        transform: scale(1.05);
-      }
-      .button-submit-upload:active {
-        background-color: #004494;
-        transform: scale(1);
-      }
-      #loading {
-        display: none;
-        font-size: 18px;
-        color: #0072ff;
-        margin-top: 20px;
+        padding: 4px 10px;
       }
     </style>
   </head>
   <body>
     <h1>Analisis Sentimen Ulasan Aplikasi Mobile JKN</h1>
-
+    <!-- <div>
+      <form id="sentiment-form">
+        <textarea
+          id="text"
+          name="text"
+          rows="4"
+          cols="50"
+          placeholder="Masukkan teks ulasan..."
+        ></textarea
+        ><br />
+        <button type="submit">Analisis Sentimen</button>
+      </form>
+      <div id="result"></div>
+    </div> -->
     <div class="upload-container">
+      <h2>Unggah File Excel (.xlsx)</h2>
       <form id="predictFile">
+        <!-- <form
+        id="predictFile"
+        action="/predict-file"
+        method="post"
+        enctype="multipart/form-data"
+      > -->
         <div class="upload-box">
-          <label for="file">Unggah File Excel (.xlsx):</label>
+          <label for="file">Unggah:</label>
           <input type="file" id="file" name="file" accept=".xlsx" required />
         </div>
         <div>
-          <button class="button-submit-upload" type="submit">Unggah</button>
+          <button class="button-submit-upload" type="submit">Upload</button>
         </div>
       </form>
     </div>
 
-    <div id="loading">Mohon tunggu...</div>
     <div id="response"></div>
 
     <script>
+      // HANDLE TEXT INPUT
+      // document
+      //   .getElementById("sentiment-form")
+      //   .addEventListener("submit", function (e) {
+      //     e.preventDefault();
+      //     const text = document.getElementById("text").value;
+      //     fetch("/predict", {
+      //       method: "POST",
+      //       headers: {
+      //         "Content-Type": "application/x-www-form-urlencoded",
+      //       },
+      //       body: "text=" + encodeURIComponent(text),
+      //     })
+      //       .then((response) => response.json())
+      //       .then((data) => {
+      //         const resultDiv = document.getElementById("result");
+      //         resultDiv.innerHTML = "Sentiment: " + data[0].label;
+      //         // + "<br>Score: " +
+      //         // data[0].score.toFixed(4);
+      //       });
+      //   });
+
+      // HANDLE XLSX UPLOAD
       document
         .getElementById("predictFile")
         .addEventListener("submit", function (event) {
@@ -92,15 +100,14 @@
           var fileInput = document.getElementById("file");
           formData.append("file", fileInput.files[0]);
 
-          // Show loading indicator
-          document.getElementById("loading").style.display = "block";
-
           fetch("/predict-file", {
             method: "POST",
             body: formData,
           })
             .then((response) => response.json())
             .then((data) => {
+              // console.log(data.columns.forEach(e => e))
+              data.columns.forEach((e) => console.log(e));
               var responseDiv = document.getElementById("response");
               responseDiv.innerHTML = "";
 
@@ -128,10 +135,6 @@
               document.getElementById(
                 "response"
               ).innerHTML = `<p>Error: ${error}</p>`;
-            })
-            .finally(() => {
-              // Hide loading indicator
-              document.getElementById("loading").style.display = "none";
             });
         });
     </script>
