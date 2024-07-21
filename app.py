@@ -66,7 +66,7 @@ def predict_file():
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
-@app.route('/download-format')
+@app.route('/download-contoh')
 def download_file():
     path = 'format.xlsx'  # Replace with your file path
     return send_file(path, as_attachment=True)
