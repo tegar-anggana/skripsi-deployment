@@ -2,9 +2,11 @@
 # pip3 install torch 
 # torchvision torchaudio
 # labeling ipynb : https://drive.google.com/drive/u/0/folders/16SWta0z2NsFVLwYNLcV1dKukvYnhDxAv
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from transformers import pipeline
+from tqdm import tqdm
 import pandas as pd
+import io
 
 app = Flask(__name__)
 
@@ -35,18 +37,39 @@ def predict_file():
         # Read the file into a Pandas DataFrame
         df = pd.read_excel(file, engine='openpyxl')
         
-        columns = df.columns.tolist()
-        data = df.head().to_dict(orient='records')
+        df_inf_content = df['user_comment'].str.lower().tolist()
+
+        # Create an empty list to store the inference results
+        inf_result = []
+
+        # Use tqdm to wrap the iterable
+        for comment in tqdm(df_inf_content, desc="Processing comments"):
+            # Apply the classifier to each comment and store the result
+            inf_result.append(classifier(comment)[0])
+            
+        df_inf_result = pd.DataFrame(inf_result)    
+        df_with_inf = pd.concat([df, df_inf_result], axis=1)
         
         # Filter out NaN values
-        for row in data:
-            for key, value in row.items():
-                if pd.isna(value):
-                    row[key] = ""  # or any default value
+        df_with_inf = df_with_inf.fillna("")
         
-        return jsonify({'columns': columns,'example_data': data}), 200
+        # Save the processed DataFrame to a new Excel file in memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df_with_inf.to_excel(writer, index=False, sheet_name='Sheet1')
+        output.seek(0)
+
+        # Send the file as a response
+        return send_file(output, download_name='result.xlsx', as_attachment=True)
+        
+        # return jsonify(), 200
     else:
         return jsonify({'error': 'Invalid file format'}), 400
+
+@app.route('/download-format')
+def download_file():
+    path = 'format.xlsx'  # Replace with your file path
+    return send_file(path, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
