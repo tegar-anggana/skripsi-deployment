@@ -1,7 +1,7 @@
 services:
   skripsi-deployment:
     build:
-      context: ./skripsi-deployment-main
+      context: .
     container_name: skripsi-deployment-container
     ports:
       - "8882:5000"
