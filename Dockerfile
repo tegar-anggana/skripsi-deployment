@@ -1,5 +1,5 @@
 # FROM python:3.11-alpine
-FROM python:3.10
+FROM python:3.10-slim
 
 # Set up environment variables for Python
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose the port your application will run on
-EXPOSE 8081
+EXPOSE 8882
 
 # Specify the command to run on container start
 CMD ["python", "app.py"]
